@@ -4,12 +4,14 @@ package com.lamthoncoding.realtimechat.security;
 
 import com.lamthoncoding.realtimechat.security.config.auth.AuthEntryPointJwt;
 import com.lamthoncoding.realtimechat.security.config.auth.CustomAccessDenied;
+import com.lamthoncoding.realtimechat.security.config.jwt.AuthChannelInterceptor;
 import com.lamthoncoding.realtimechat.security.config.jwt.AuthTokenFilter;
 import com.lamthoncoding.realtimechat.security.service.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
@@ -45,7 +47,7 @@ public class WebSecurityConfig implements WebSocketMessageBrokerConfigurer {
     private final AuthEntryPointJwt unauthorizedHandler;
     private final AuthTokenFilter authTokenFilter;
     private final CustomAccessDenied accessDenied;
-
+    private final AuthChannelInterceptor authChannelInterceptor;
 
 
     @Bean
@@ -125,6 +127,11 @@ public class WebSecurityConfig implements WebSocketMessageBrokerConfigurer {
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.enableSimpleBroker("/topic");
         registry.setApplicationDestinationPrefixes("/app");
+    }
+
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(authChannelInterceptor);
     }
 
     public static void main(String[] args) {

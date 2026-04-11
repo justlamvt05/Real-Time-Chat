@@ -18,6 +18,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -30,15 +32,13 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     private final SimpMessagingTemplate messagingTemplate;
 
     @Override
-    public void handleMessage(ChatMessageRequest request) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        assert auth != null;
-        String username = auth.getName();
+    public void handleMessage(ChatMessageRequest request, Principal principal) {
+        String username = principal.getName();
         log.info("Username: {}", username);
         User currentUser = userRepository
                 .findByUsername(username)
                 .orElseThrow(() -> new EntityNotFound("User Not Found"));
-
+        log.info("Chat id: {}", request.getChatId());
         ChatRoom room = chatRoomRepository
                 .findById(request.getChatId())
                 .orElseThrow(() -> new EntityNotFound("Chat Room Not Found"));
@@ -47,7 +47,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         message.setContent(request.getContent());
         message.setChatRoom(room);
         message.setSender(currentUser);
-
+        //Todo: use kafka
         messageRepository.save(message);
 
         messagingTemplate.convertAndSend(

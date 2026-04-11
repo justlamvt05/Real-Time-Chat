@@ -28,19 +28,16 @@ public class ChatRoomUserServiceImpl implements ChatRoomUserService {
     public ApiResponse<?> getOrCreatePrivateRoom(UUID userA, UUID userB) {
         List<UUID> userIds = List.of(userA, userB);
 
-        // 1. Check room tồn tại
         Optional<UUID> existingRoomId = chatRoomUserRepository.findPrivateRoom(userIds, 2);
 
         if (existingRoomId.isPresent()) {
             return ApiResponse.success(existingRoomId.get()) ;
         }
 
-        // 2. Nếu chưa có → tạo mới
         ChatRoom room = new ChatRoom();
         room.setIsGroup(false);
         chatRoomRepository.save(room);
 
-        // 3. Add 2 user vào room
         User u1 = userRepository.findById(userA).orElseThrow();
         User u2 = userRepository.findById(userB).orElseThrow();
 
