@@ -30,27 +30,31 @@ public class UserDetailsImpl implements UserDetails {
     public UserDetailsImpl(
             UUID userId,
             String username,
-            String password
+            String password,
+            Collection<? extends GrantedAuthority> authorities
     ) {
         this.userId = userId;
         this.username = username;
         this.password = password;
+        this.authorities = authorities;
     }
 
     public static UserDetailsImpl build(User user) {
-
+        List<GrantedAuthority> authorities = List.of(
+                new SimpleGrantedAuthority(user.getRole().getName())
+        );
         return new UserDetailsImpl(
                 user.getId(),
                 user.getUsername(),
-                user.getPassword()
+                user.getPassword(),
+                authorities
         );
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.emptyList();
+        return authorities;
     }
-
     @Override
     public boolean isAccountNonExpired() {
         return true;
