@@ -4,6 +4,7 @@ package com.lamthoncoding.realtimechat.service.impl;
 //import com.lamvt.shcedule.security.JavaMailSenderCustom;
 
 import com.lamthoncoding.realtimechat.entity.User;
+import com.lamthoncoding.realtimechat.repository.UserRepository;
 import com.lamthoncoding.realtimechat.service.UserService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
 
     private final JavaMailSender mailSender;
+    private final UserRepository userRepository;
 
     @Async
     @Override
@@ -57,4 +59,11 @@ public class UserServiceImpl implements UserService {
         helper.setText(htmlContent, true);
         mailSender.send(message);
     }
+
+    @Override
+    public void cleanInactiveUsers() {
+        userRepository.deleteInactiveUsers();
+    }
+
+
 }

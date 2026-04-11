@@ -1,10 +1,11 @@
 package com.lamthoncoding.realtimechat.repository;
 
 import com.lamthoncoding.realtimechat.entity.User;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -18,4 +19,13 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     boolean existsByEmail(String email);
 
     boolean existsByPhone(String phone);
+
+    Optional<User> findByPhone(String phone);
+
+    @Modifying
+    @Query("""
+    DELETE FROM User u
+    WHERE u.status = 'INACTIVE'
+    """)
+    void deleteInactiveUsers();
 }
