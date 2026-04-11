@@ -83,7 +83,7 @@ public class AuthServiceImpl implements AuthService {
 
 
         userService.sendVerificationEmail(savedUser,token);
-        return ApiResponse.success("Register successfully");
+        return ApiResponse.success("Register successfully. Check your email if activation mail not sent");
     }
 
     @Override
@@ -109,21 +109,23 @@ public class AuthServiceImpl implements AuthService {
 
         if (existingUser != null) {
 
-            if (existingUser.getStatus() == EStatus.INACTIVE) {
-
-                throw new InvalidInputException("Email already registered but not verified");
+            if (existingUser.getStatus() == EStatus.ACTIVE) {
+                throw new InvalidInputException("Email already exists");
             }
 
-            throw new InvalidInputException("Email already exists");
         }
 
-        if (userRepository.existsByUsername(request.getUsername())) {
+        User existingUsername = userRepository.findByUsername(request.getUsername()).orElse(null);
+
+        if (existingUsername != null && existingUsername.getStatus() == EStatus.ACTIVE) {
             throw new InvalidInputException("Username already exists");
         }
+        User existingPhone = userRepository.findByPhone(request.getPhone()).orElse(null);
 
-        if (userRepository.existsByPhone((request.getPhone()))) {
+        if (existingPhone != null && existingPhone.getStatus() == EStatus.ACTIVE) {
             throw new InvalidInputException("Phone number already exists");
         }
+
     }
 
 
