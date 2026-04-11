@@ -9,12 +9,16 @@ import com.lamthoncoding.realtimechat.security.service.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -24,6 +28,9 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
+import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
+import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
 import java.util.List;
 
@@ -31,12 +38,14 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class WebSecurityConfig  {
+@EnableWebSocketMessageBroker
+public class WebSecurityConfig implements WebSocketMessageBrokerConfigurer {
 
     private final UserDetailsServiceImpl userDetailsService;
     private final AuthEntryPointJwt unauthorizedHandler;
     private final AuthTokenFilter authTokenFilter;
     private final CustomAccessDenied accessDenied;
+
 
 
     @Bean
@@ -53,12 +62,17 @@ public class WebSecurityConfig  {
         //httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.disable()
         return http.cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
+                .headers(headers -> headers
+                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)
+                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/",
                                 "/oauth2/**",
-                                "/auth/**"
+                                "/auth/**",
+                                "/ws/**"
                         ).permitAll()
+                        .requestMatchers("/chat/**").hasRole("CUSTOMER")
                         .anyRequest().authenticated()
                 )
 //                .oauth2Login(oauth -> oauth
@@ -81,7 +95,9 @@ public class WebSecurityConfig  {
 //                        .accessDeniedHandler(accessDenied)
 //
 //                )
+
                 .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class).build();
+
     }
 
 
@@ -100,7 +116,16 @@ public class WebSecurityConfig  {
         return source;
     }
 
+    @Override
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
+        registry.addEndpoint("/ws").setAllowedOriginPatterns("*").withSockJS();;
+    }
 
+    @Override
+    public void configureMessageBroker(MessageBrokerRegistry registry) {
+        registry.enableSimpleBroker("/topic");
+        registry.setApplicationDestinationPrefixes("/app");
+    }
 
     public static void main(String[] args) {
         BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();

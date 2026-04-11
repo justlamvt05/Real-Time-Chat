@@ -1,8 +1,7 @@
 package com.lamthoncoding.realtimechat.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -10,6 +9,9 @@ import java.util.UUID;
 @Table(name = "tbl_chat_room_user")
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ChatRoomUser {
 
     @Id
