@@ -12,8 +12,7 @@ import lombok.*;
 @Setter
 @Builder
 public class UserDto {
-
-    private String is;
+    private String id;
     private String username;
     private String fullName;
     private String email;

@@ -52,6 +52,8 @@ public class User extends BaseEntity {
 
     private String avatar;
 
+    boolean online;
+
     private LocalDateTime lastSeen;
 
     @Enumerated(EnumType.STRING)

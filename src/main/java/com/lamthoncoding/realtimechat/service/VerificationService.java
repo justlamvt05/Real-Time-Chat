@@ -9,6 +9,6 @@ public interface VerificationService {
     String validateToken(String token);
     void deleteToken(String token);
 
-    @Scheduled(cron = "0 0 2 * * ?") // 2AM every day
+    @Scheduled(cron = "0 0 14 * * ?") // 2PM every day
     void cleanupExpiredTokens();
 }

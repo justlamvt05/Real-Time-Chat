@@ -22,9 +22,9 @@ import java.util.List;
 @Slf4j
 @Component
 public class JwtUtils {
-    @Value("${schedule.jwtSecret}")
+    @Value("${chat.jwtSecret}")
     private String jwtSecret;
-    @Value("${schedule.jwtExpirationMs}")
+    @Value("${chat.jwtExpirationMs}")
     private int jwtExpirationMs;
     private SecretKey secretKey;
 
@@ -40,6 +40,7 @@ public class JwtUtils {
                 .stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
+
         return Jwts.builder()
                 .subject(userDetails.getUsername())
                 .claim("roles", roles)
@@ -48,18 +49,19 @@ public class JwtUtils {
                 .signWith(getSigningKey(), Jwts.SIG.HS256)
                 .compact();
     }
-    public String generateToken(User user) {
-        return Jwts.builder()
-                .subject(user.getUsername())
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
-                .claim("id", user.getId())
-                .claim("email", user.getEmail())
-                .claim("role", user.getRole().getName())
-                .claim("provider", user.getAuthProvider().name())
-                .signWith(getSigningKey(), Jwts.SIG.HS256)
-                .compact();
-    }
+//    public String generateToken(User user) {
+//
+//        return Jwts.builder()
+//                .subject(user.getUsername())
+//                .issuedAt(new Date())
+//                .expiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
+//                .claim("id", user.getId())
+//                .claim("email", user.getEmail())
+//                .claim("role", user.getRole().getName())
+//                .claim("provider", user.getAuthProvider().name())
+//                .signWith(getSigningKey(), Jwts.SIG.HS256)
+//                .compact();
+//    }
 
     public String getUsernameFromToken(String token) {
         return Jwts

@@ -14,6 +14,9 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -58,6 +61,20 @@ public class UserServiceImpl implements UserService {
                         "</div>";
         helper.setText(htmlContent, true);
         mailSender.send(message);
+    }
+
+    @Override
+    public void setOnline(String username) {
+        User user = userRepository.findByUsername(username).orElseThrow();
+        user.setOnline(true);
+        userRepository.save(user);
+    }
+    @Override
+    public void setOffline(String username) {
+        User user = userRepository.findByUsername(username).orElseThrow();
+        user.setOnline(false);
+        user.setLastSeen(LocalDateTime.now());
+        userRepository.save(user);
     }
 
     @Override

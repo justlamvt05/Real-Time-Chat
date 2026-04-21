@@ -29,7 +29,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -48,10 +47,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public UserDto login(LoginRequest loginRequest) {
         log.info("Login request: {}", loginRequest.getUsername());
-        User user = userRepository.findByUsername(
-                loginRequest.getUsername()).orElseThrow(()
+        User user = userRepository.findByUsernameAndStatus(
+                loginRequest.getUsername(), EStatus.ACTIVE).orElseThrow(()
                 -> new EntityNotFound("Invalid username or password"));
-
+        log.info("User found: {}", user);
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             throw new EntityNotFound("Invalid username or password.");
         }
@@ -76,6 +75,7 @@ public class AuthServiceImpl implements AuthService {
                 .phone(request.getPhone())
                 .authProvider(AuthProvider.GOOGLE)
                 .status(EStatus.INACTIVE)
+                .online(false)
                 .build();
         User savedUser = userRepository.save(user);
 
