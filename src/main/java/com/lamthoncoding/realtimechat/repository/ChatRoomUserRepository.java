@@ -17,6 +17,13 @@ public interface ChatRoomUserRepository extends JpaRepository<ChatRoomUser, UUID
     WHERE cru.user.id IN :userIds
     GROUP BY cru.chatRoom.id
     HAVING COUNT(cru.user.id) = :size
-""")
+    """)
     Optional<UUID> findPrivateRoom(List<UUID> userIds, long size);
+
+    @Query("""
+    SELECT u.username FROM ChatRoomUser cu
+    JOIN cu.user u
+    WHERE cu.chatRoom.id = :chatRoomId
+    """)
+    List<String> findUsernamesByChatRoomId(UUID chatRoomId);
 }

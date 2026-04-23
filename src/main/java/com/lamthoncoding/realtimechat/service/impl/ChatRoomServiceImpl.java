@@ -7,6 +7,7 @@ import com.lamthoncoding.realtimechat.entity.User;
 import com.lamthoncoding.realtimechat.exception.handlers.EntityNotFound;
 import com.lamthoncoding.realtimechat.payload.request.ChatMessageRequest;
 import com.lamthoncoding.realtimechat.repository.ChatRoomRepository;
+import com.lamthoncoding.realtimechat.repository.ChatRoomUserRepository;
 import com.lamthoncoding.realtimechat.repository.MessageRepository;
 import com.lamthoncoding.realtimechat.repository.UserRepository;
 import com.lamthoncoding.realtimechat.service.ChatRoomService;
@@ -14,11 +15,10 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.util.List;
 
 @Service
 @Transactional
@@ -30,6 +30,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final ChatRoomUserRepository chatRoomUserRepository;
 
     @Override
     public void handleMessage(ChatMessageRequest request, Principal principal) {
@@ -48,11 +49,13 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         message.setChatRoom(room);
         message.setSender(currentUser);
         //Todo: use kafka
-        messageRepository.save(message);
+        Message saved = messageRepository.save(message);
+
+        List<String> usernames = chatRoomUserRepository.findUsernamesByChatRoomId(room.getId());
 
         messagingTemplate.convertAndSend(
                 "/topic/room/" + room.getId(),
-                message
+                saved
         );
     }
 }
