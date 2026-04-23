@@ -74,7 +74,7 @@ public class WebSecurityConfig implements WebSocketMessageBrokerConfigurer {
                                 "/auth/**",
                                 "/ws/**"
                         ).permitAll()
-                        .requestMatchers("/chat/**, /messages/**").hasRole("CUSTOMER")
+                        .requestMatchers("/chat/**, /messages/**, /users/**").hasRole("CUSTOMER")
                         .anyRequest().authenticated()
                 )
 //                .oauth2Login(oauth -> oauth
