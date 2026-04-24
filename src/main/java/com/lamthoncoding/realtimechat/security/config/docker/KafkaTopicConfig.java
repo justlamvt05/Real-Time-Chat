@@ -1,4 +1,4 @@
-package com.lamthoncoding.realtimechat.entity;
+package com.lamthoncoding.realtimechat.security.config.docker;
 
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.context.annotation.Bean;

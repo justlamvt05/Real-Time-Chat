@@ -1,4 +1,4 @@
-package com.lamthoncoding.realtimechat.entity;
+package com.lamthoncoding.realtimechat.security.config.cloudinary;
 
 import com.cloudinary.Cloudinary;
 import lombok.Getter;
