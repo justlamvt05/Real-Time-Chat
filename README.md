@@ -187,7 +187,7 @@ You can run them locally or using Docker.
 Example Docker services:
 
 ```bash
-docker run -d --name redis -p 6379:6379 redis
+docker run -d --name redis -p 6380:6379 redis
 ```
 
 Kafka + Zookeeper can be started using Docker Compose.
