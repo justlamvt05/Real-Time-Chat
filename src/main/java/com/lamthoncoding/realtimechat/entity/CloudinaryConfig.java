@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-//@ConfigurationProperties(prefix = "cloudinary")
+@ConfigurationProperties(prefix = "cloudinary")
 @Getter
 @Setter
 public class CloudinaryConfig {

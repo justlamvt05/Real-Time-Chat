@@ -3,7 +3,12 @@ package com.lamthoncoding.realtimechat.service.impl;
 
 //import com.lamvt.shcedule.security.JavaMailSenderCustom;
 
+import com.lamthoncoding.realtimechat.dto.UserDto;
 import com.lamthoncoding.realtimechat.entity.User;
+import com.lamthoncoding.realtimechat.exception.handlers.EntityNotFound;
+import com.lamthoncoding.realtimechat.mapper.UserMapper;
+import com.lamthoncoding.realtimechat.payload.request.EditProfileRequest;
+import com.lamthoncoding.realtimechat.payload.response.ApiResponse;
 import com.lamthoncoding.realtimechat.repository.UserRepository;
 import com.lamthoncoding.realtimechat.service.UserService;
 import jakarta.mail.MessagingException;
@@ -23,6 +28,7 @@ public class UserServiceImpl implements UserService {
 
     private final JavaMailSender mailSender;
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     @Async
     @Override
@@ -80,6 +86,44 @@ public class UserServiceImpl implements UserService {
     @Override
     public void cleanInactiveUsers() {
         userRepository.deleteInactiveUsers();
+    }
+
+    @Override
+    public ApiResponse<UserDto> editProfile(EditProfileRequest request, String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFound("User not found"));
+
+        if (request.getFullName() != null) {
+            user.setFullName(request.getFullName());
+        }
+
+        if (request.getDisplayName() != null) {
+            user.setDisplayName(request.getDisplayName());
+        }
+
+        if (request.getPhone() != null) {
+            user.setPhone(request.getPhone());
+        }
+
+        if (request.getAvatar() != null) {
+            user.setAvatar(request.getAvatar());
+        }
+
+        if (request.getTimeZone() != null) {
+            user.setTimeZone(request.getTimeZone());
+        }
+
+        if (request.getBirthday() != null) {
+            user.setBirthday(request.getBirthday());
+        }
+
+        if (request.getGender() != null) {
+            user.setGender(request.getGender());
+        }
+
+        User updatedUser = userRepository.save(user);
+
+        return ApiResponse.success(userMapper.toDto(updatedUser));
     }
 
 
