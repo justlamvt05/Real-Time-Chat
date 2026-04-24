@@ -19,4 +19,6 @@ public interface UserService {
      void cleanInactiveUsers();
 
      ApiResponse<UserDto> editProfile(EditProfileRequest request, String username);
+
+     boolean isOnline(String username);
 }

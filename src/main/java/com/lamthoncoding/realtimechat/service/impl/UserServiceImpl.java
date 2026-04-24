@@ -11,9 +11,14 @@ import com.lamthoncoding.realtimechat.payload.request.EditProfileRequest;
 import com.lamthoncoding.realtimechat.payload.response.ApiResponse;
 import com.lamthoncoding.realtimechat.repository.UserRepository;
 import com.lamthoncoding.realtimechat.service.UserService;
+import jakarta.annotation.PostConstruct;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -24,11 +29,14 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     private final JavaMailSender mailSender;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisConnectionFactory redisConnectionFactory;
 
     @Async
     @Override
@@ -71,15 +79,36 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void setOnline(String username) {
-        User user = userRepository.findByUsername(username).orElseThrow();
-        user.setOnline(true);
-        userRepository.save(user);
+        String key = "online:user:" + username;
+
+        redisTemplate.opsForValue().set(key, "ONLINE");
+
+        log.info("REDIS SET KEY = {}", key);
+        redisTemplate.opsForValue().set(
+                "online:user:" + username,
+                "ONLINE"
+        );
+        Boolean exists = redisTemplate.hasKey(key);
+
+        log.info("REDIS EXISTS = {}", exists);
+
+        RedisConnection connection = redisConnectionFactory.getConnection();
+
+        log.info("PING = {}", connection.ping());
+        log.info("CONNECTION = {}", connection);
+
+
     }
     @Override
     public void setOffline(String username) {
+        log.info("DELETE REDIS KEY = online:user:{}", username);
+
+        redisTemplate.delete("online:user:" + username);
+
+
         User user = userRepository.findByUsername(username).orElseThrow();
-        user.setOnline(false);
         user.setLastSeen(LocalDateTime.now());
+
         userRepository.save(user);
     }
 
@@ -126,5 +155,18 @@ public class UserServiceImpl implements UserService {
         return ApiResponse.success(userMapper.toDto(updatedUser));
     }
 
+
+    @Override
+    public boolean isOnline(String username) {
+
+        return Boolean.TRUE.equals(
+                redisTemplate.hasKey("online:user:" + username)
+        );
+    }
+
+    @PostConstruct
+    public void testRedis() {
+        redisTemplate.opsForValue().set("test", "hello");
+    }
 
 }

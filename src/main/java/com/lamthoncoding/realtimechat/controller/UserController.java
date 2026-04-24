@@ -1,6 +1,5 @@
 package com.lamthoncoding.realtimechat.controller;
 
-import com.lamthoncoding.realtimechat.dto.UserDto;
 import com.lamthoncoding.realtimechat.payload.request.EditProfileRequest;
 import com.lamthoncoding.realtimechat.payload.response.ApiResponse;
 import com.lamthoncoding.realtimechat.service.CloudinaryService;
@@ -40,4 +39,8 @@ public class UserController {
         return ApiResponse.success(userService.editProfile(request, username));
     }
 
+    @GetMapping("/status/{username}")
+    public ApiResponse<?> getStatus(@PathVariable String username) {
+        return ApiResponse.success(userService.isOnline(username));
+    }
 }

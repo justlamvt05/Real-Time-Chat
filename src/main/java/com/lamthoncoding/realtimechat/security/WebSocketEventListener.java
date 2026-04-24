@@ -1,9 +1,7 @@
 package com.lamthoncoding.realtimechat.security;
 
 import com.lamthoncoding.realtimechat.dto.UserStatusDTO;
-import com.lamthoncoding.realtimechat.repository.UserRepository;
 import com.lamthoncoding.realtimechat.service.UserService;
-import com.lamthoncoding.realtimechat.service.impl.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -28,6 +26,7 @@ public class WebSocketEventListener {
 
         String username = accessor.getUser().getName();
 
+        log.info("USERNAME = {}", username);
         userService.setOnline(username);
 
         messagingTemplate.convertAndSend("/topic/status",
