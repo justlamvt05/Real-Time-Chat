@@ -74,17 +74,20 @@ public class WebSecurityConfig implements WebSocketMessageBrokerConfigurer {
                                 "/auth/**",
                                 "/ws/**"
                         ).permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/chat/**, /messages/**, /users/**").hasRole("CUSTOMER")
                         .anyRequest().authenticated()
                 )
-//                .oauth2Login(oauth -> oauth
-//                        .loginPage("/oauth2/authorization/google")
-//                )
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(unauthorizedHandler)
+                        .accessDeniedHandler(accessDenied)
+
+                )
 
 //                .authorizeHttpRequests(authorizeRequests ->
 //                        authorizeRequests.requestMatchers("/auth/**","/hello", "/error", "/all").permitAll()
 //                                .requestMatchers("/user/profile").hasAnyRole("ADMIN", "SALE", "CUSTOMER")
-//                                .requestMatchers("/admin/**").hasRole("ADMIN")
+
 //                                .requestMatchers("/sale/**").hasRole("SALE")
 //                                .requestMatchers("/user/**").hasRole("CUSTOMER")
 //                                .requestMatchers("/cart/**").permitAll()

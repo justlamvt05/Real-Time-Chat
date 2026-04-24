@@ -4,6 +4,7 @@ package com.lamthoncoding.realtimechat.dto;
 import com.lamthoncoding.realtimechat.constraint.EStatus;
 import lombok.*;
 
+import java.util.UUID;
 
 
 @AllArgsConstructor
@@ -12,7 +13,7 @@ import lombok.*;
 @Setter
 @Builder
 public class UserDto {
-    private String id;
+    private UUID id;
     private String username;
     private String fullName;
     private String email;

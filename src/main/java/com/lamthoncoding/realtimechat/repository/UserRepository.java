@@ -1,7 +1,10 @@
 package com.lamthoncoding.realtimechat.repository;
 
 import com.lamthoncoding.realtimechat.constraint.EStatus;
+import com.lamthoncoding.realtimechat.dto.UserDto;
 import com.lamthoncoding.realtimechat.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -53,4 +56,27 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     WHERE u.username = :username
     """)
     void setOffline(@Param("username") String username);
+
+    @Query("""
+    SELECT new com.lamthoncoding.realtimechat.dto.UserDto(
+        u.id,
+        u.username,
+        u.fullName,
+        u.email,
+        u.phone,
+        u.status
+    )
+    FROM User u
+    WHERE
+    (:keyword IS NULL OR
+        LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
+        LOWER(u.username) LIKE LOWER(CONCAT('%', :keyword, '%'))
+    )
+    AND (:status IS NULL OR u.status = :status)
+    """)
+    Page<UserDto> findAllUserDto(
+            Pageable pageable,
+            @Param("keyword") String keyword,
+            @Param("status") EStatus status
+    );
 }
