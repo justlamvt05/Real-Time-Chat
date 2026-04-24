@@ -11,6 +11,7 @@ import com.lamthoncoding.realtimechat.repository.ChatRoomUserRepository;
 import com.lamthoncoding.realtimechat.repository.MessageRepository;
 import com.lamthoncoding.realtimechat.repository.UserRepository;
 import com.lamthoncoding.realtimechat.service.ChatRoomService;
+import com.lamthoncoding.realtimechat.service.KafkaProducerService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     private final UserRepository userRepository;
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatRoomUserRepository chatRoomUserRepository;
+    private final KafkaProducerService kafkaProducerService;
 
     @Override
     public void handleMessage(ChatMessageRequest request, Principal principal) {
@@ -48,14 +50,11 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         message.setContent(request.getContent());
         message.setChatRoom(room);
         message.setSender(currentUser);
-        //Todo: use kafka
+
         Message saved = messageRepository.save(message);
 
         List<String> usernames = chatRoomUserRepository.findUsernamesByChatRoomId(room.getId());
 
-        messagingTemplate.convertAndSend(
-                "/topic/room/" + room.getId(),
-                saved
-        );
+        kafkaProducerService.sendMessage(saved);
     }
 }
