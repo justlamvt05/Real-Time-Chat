@@ -2,10 +2,8 @@ package com.lamthoncoding.realtimechat.security.config.jwt;
 
 
 
-import com.lamthoncoding.realtimechat.entity.User;
 import com.lamthoncoding.realtimechat.security.service.UserDetailsImpl;
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
 import lombok.extern.slf4j.Slf4j;

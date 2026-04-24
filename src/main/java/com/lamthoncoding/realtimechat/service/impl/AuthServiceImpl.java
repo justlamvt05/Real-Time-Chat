@@ -25,6 +25,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +43,8 @@ public class AuthServiceImpl implements AuthService {
     private final VerificationService verificationService;
     private final UserService userService;
     private final RoleRepository roleRepository;
+    @Value("${default.image.link}")
+    private String URL;
 
 
     @Override
@@ -70,7 +73,7 @@ public class AuthServiceImpl implements AuthService {
                 .fullName(request.getFullName())
                 .displayName(request.getUsername())
                 .timeZone("Asia/Kolkata")
-                // Todo: avarta
+                .avatar(URL)
                 .role(r)
                 .phone(request.getPhone())
                 .authProvider(AuthProvider.GOOGLE)
