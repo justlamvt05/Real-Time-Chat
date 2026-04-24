@@ -1,0 +1,37 @@
+package com.lamthoncoding.realtimechat.controller;
+
+import com.lamthoncoding.realtimechat.entity.User;
+import com.lamthoncoding.realtimechat.exception.handlers.EntityNotFound;
+import com.lamthoncoding.realtimechat.payload.response.ApiResponse;
+import com.lamthoncoding.realtimechat.repository.UserRepository;
+import com.lamthoncoding.realtimechat.service.ChatRoomService;
+import com.lamthoncoding.realtimechat.service.ChatRoomUserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/chat")
+@RequiredArgsConstructor
+public class ChatRoomUserController {
+    private final ChatRoomUserService chatRoomUserService;
+    private final ChatRoomService chatRoomService;
+    private final UserRepository userRepository;
+
+    @PostMapping("/private-room")
+    public ApiResponse<?> createPrivateRoom(@RequestParam UUID userId) {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        assert auth != null;
+        String username = auth.getName();
+
+        User currentUser = userRepository
+                .findByUsername(username)
+                .orElseThrow(() -> new EntityNotFound("User Not Found"));
+
+        return ApiResponse.success(chatRoomUserService.getOrCreatePrivateRoom(currentUser.getId(), userId));
+    }
+}
