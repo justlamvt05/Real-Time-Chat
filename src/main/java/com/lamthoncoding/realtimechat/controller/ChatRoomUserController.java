@@ -6,11 +6,15 @@ import com.lamthoncoding.realtimechat.payload.response.ApiResponse;
 import com.lamthoncoding.realtimechat.repository.UserRepository;
 import com.lamthoncoding.realtimechat.service.ChatRoomService;
 import com.lamthoncoding.realtimechat.service.ChatRoomUserService;
+import com.lamthoncoding.realtimechat.service.CloudinaryService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -20,6 +24,7 @@ public class ChatRoomUserController {
     private final ChatRoomUserService chatRoomUserService;
     private final ChatRoomService chatRoomService;
     private final UserRepository userRepository;
+    private final CloudinaryService cloudinaryService;
 
     @PostMapping("/private-room")
     public ApiResponse<?> createPrivateRoom(@RequestParam UUID userId) {
@@ -34,4 +39,20 @@ public class ChatRoomUserController {
 
         return ApiResponse.success(chatRoomUserService.getOrCreatePrivateRoom(currentUser.getId(), userId));
     }
+
+
+    @PostMapping("upload/image")
+    public ApiResponse<?> uploadImage(
+            @RequestParam("file") MultipartFile[] file
+    ) {
+
+        List<String> imageUrl = cloudinaryService.uploadImage(file);
+
+        return ApiResponse.success(imageUrl);
+    }
+
+//    @GetMapping("/get/image")
+//    public ResponseEntity<?> getImage(@RequestParam UUID roomId) {
+//
+//    }
 }

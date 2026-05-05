@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.List;
 
@@ -85,5 +86,41 @@ public class CloudinaryServiceImpl implements CloudinaryService {
         } catch (IOException e) {
             throw new RuntimeException("Upload failed");
         }
+    }
+
+    @Override
+    public List<String> uploadImage(MultipartFile[] files) {
+        List<String> urls = new ArrayList<>();
+
+        try {
+            for (MultipartFile file : files) {
+
+                if (file.isEmpty()) {
+                    continue;
+                }
+
+                // validate ảnh
+                String contentType = file.getContentType();
+                if (contentType == null || !contentType.startsWith("image/")) {
+                    throw new RuntimeException("File not  image");
+                }
+
+                Map uploadResult = cloudinary.uploader().upload(
+                        file.getBytes(),
+                        Map.of(
+                                "folder", "chat-images",
+                                "resource_type", "image"
+                        )
+                );
+
+                String url = uploadResult.get("secure_url").toString();
+                urls.add(url);
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException("Upload failed", e);
+        }
+
+        return urls;
     }
 }

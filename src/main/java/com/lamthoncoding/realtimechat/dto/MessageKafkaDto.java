@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -31,4 +32,6 @@ public class MessageKafkaDto {
     private Boolean edited;
 
     private UUID replyToId;
+    
+    private List<String> images;
 }

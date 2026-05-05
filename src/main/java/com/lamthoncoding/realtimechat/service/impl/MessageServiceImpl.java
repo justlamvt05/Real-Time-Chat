@@ -31,45 +31,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class MessageServiceImpl implements MessageService {
     private final MessageRepository messageRepository;
-    private final UserRepository userRepository;
-    private final ChatRoomRepository chatRoomRepository;
-    private final ChatRoomUserRepository chatRoomUserRepository;
-    private final SimpMessagingTemplate messagingTemplate;
-
-//    @Override
-//    public Message sendMessage(String senderUsername, MessageDTO dto) {
-//
-//        User sender = userRepository.findByUsername(senderUsername)
-//                .orElseThrow();
-//        log.info("Chat room Id: {}", dto.getChatRoomId());
-//        ChatRoom chatRoom = chatRoomRepository.findById(dto.getChatRoomId())
-//                .orElseThrow();
-//
-//        Message message = new Message();
-//        message.setChatRoom(chatRoom);
-//        message.setSender(sender);
-//        message.setContent(dto.getContent());
-//        message.setType(dto.getType());
-//        message.setStatus(MessageStatus.SENT);
-//
-//        Message saved = messageRepository.save(message);
-//
-//        List<String> usernames = chatRoomUserRepository.findUsernamesByChatRoomId(chatRoom.getId());
-//
-//
-//        for (String username : usernames) {
-//            if (!username.equals(senderUsername)) {
-//                messagingTemplate.convertAndSendToUser(
-//                        username,
-//                        "/queue/messages",
-//                        saved
-//                );
-//            }
-//        }
-//
-//        return saved;
-//
-//    }
 
     @Override
     public ApiResponse<Page<MessageResponse>> getMessages(UUID chatRoomId, int page, int size) {
@@ -93,6 +54,7 @@ public class MessageServiceImpl implements MessageService {
                 .content(message.getContent())
                 .senderUsername(message.getSender().getUsername())
                 .chatRoomId(message.getChatRoom().getId())
+                .images(message.getImages())
                 .build();
     }
 

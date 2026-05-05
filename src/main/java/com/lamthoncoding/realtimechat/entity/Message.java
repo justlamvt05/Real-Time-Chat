@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -31,6 +32,13 @@ public class Message extends BaseEntity {
 
     private String fileUrl;
 
+    @ElementCollection
+    @CollectionTable(
+            name = "tbl_message_images",
+            joinColumns = @JoinColumn(name = "message_id")
+    )
+    @Column(name = "image_url")
+    private List<String> images;
 
     private Boolean deleted = false;
 

@@ -30,8 +30,6 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
-    private final SimpMessagingTemplate messagingTemplate;
-    private final ChatRoomUserRepository chatRoomUserRepository;
     private final KafkaProducerService kafkaProducerService;
 
     @Override
@@ -51,10 +49,22 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         message.setChatRoom(room);
         message.setSender(currentUser);
 
+
+        message.setImages(request.getImage());
+
+        message.setType(
+                request.getImage() != null && !request.getImage().isEmpty()
+                        ? "IMAGE"
+                        : "TEXT"
+        );
+
         Message saved = messageRepository.save(message);
 
-        List<String> usernames = chatRoomUserRepository.findUsernamesByChatRoomId(room.getId());
+
 
         kafkaProducerService.sendMessage(saved);
     }
+
+
+
 }

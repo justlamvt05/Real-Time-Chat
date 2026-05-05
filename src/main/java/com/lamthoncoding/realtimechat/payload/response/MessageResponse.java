@@ -3,6 +3,7 @@ package com.lamthoncoding.realtimechat.payload.response;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -15,5 +16,6 @@ public class MessageResponse {
     private String content;
     private String senderUsername;
     private UUID chatRoomId;
+    private List<String> images;
 
 }
