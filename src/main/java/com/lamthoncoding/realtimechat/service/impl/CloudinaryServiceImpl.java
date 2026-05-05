@@ -89,7 +89,7 @@ public class CloudinaryServiceImpl implements CloudinaryService {
     }
 
     @Override
-    public List<String> uploadImage(MultipartFile[] files) {
+    public List<String> uploadImage(List<MultipartFile> files) {
         List<String> urls = new ArrayList<>();
 
         try {

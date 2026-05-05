@@ -43,7 +43,7 @@ public class ChatRoomUserController {
 
     @PostMapping("upload/image")
     public ApiResponse<?> uploadImage(
-            @RequestParam("file") MultipartFile[] file
+            @RequestParam("file") List<MultipartFile> file
     ) {
 
         List<String> imageUrl = cloudinaryService.uploadImage(file);
