@@ -95,7 +95,7 @@ spring:
   data:
     redis:
       host: localhost
-      port: 6380
+      port: 6379
       database: 0
 
 jwt:
@@ -268,16 +268,14 @@ Recommended tools:
 * Postman
 * Swagger (if enabled)
 * Insomnia
-
 ---
 
 # 📌 Notes
 
-* Always use the `develop-be` branch.
 * Configure your own database, Redis, Kafka, and Cloudinary credentials.
 * Ensure Kafka and Redis are running before starting the application.
 * Update application config according to your local environment.
-
+* Database script: https://docs.google.com/document/d/1pOkJtB3NgYgPD07D_mNJZW3EnK-nbgQkjYhVt8Tul-M/edit?usp=sharing
 ---
 
 # 👨‍💻 Author
