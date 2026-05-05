@@ -2,8 +2,6 @@
 
 Backend service for a real-time chat application built with **Spring Boot**, **WebSocket**, **Kafka**, **Redis**, **JWT Authentication**, and **MySQL/PostgreSQL**.
 
-> ⚠️ **Important:** Clone the `develop-be` branch instead of the default branch.
-
 ---
 
 # 🚀 Features
