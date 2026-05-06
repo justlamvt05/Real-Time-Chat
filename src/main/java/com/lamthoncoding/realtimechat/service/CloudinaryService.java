@@ -8,4 +8,5 @@ public interface CloudinaryService {
     String uploadAvatar(MultipartFile file);
     List<String> uploadImage(List<MultipartFile> file);
 
+    List<String> uploadFile(List<MultipartFile> fileUrl);
 }

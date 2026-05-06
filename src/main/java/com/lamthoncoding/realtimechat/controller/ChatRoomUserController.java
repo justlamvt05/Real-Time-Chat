@@ -41,7 +41,7 @@ public class ChatRoomUserController {
     }
 
 
-    @PostMapping("upload/image")
+    @PostMapping("/upload/image")
     public ApiResponse<?> uploadImage(
             @RequestParam("file") List<MultipartFile> file
     ) {
@@ -55,4 +55,14 @@ public class ChatRoomUserController {
 //    public ResponseEntity<?> getImage(@RequestParam UUID roomId) {
 //
 //    }
+
+    @PostMapping("/upload/file")
+    public ApiResponse<?> uploadFile(
+            @RequestParam("file") List<MultipartFile> files
+    ) {
+
+        List<String> fileUrl = cloudinaryService.uploadFile(files);
+
+        return ApiResponse.success(fileUrl);
+    }
 }

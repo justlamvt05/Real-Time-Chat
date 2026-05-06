@@ -13,4 +13,5 @@ public class ChatMessageRequest {
     private String content;
     private String type;
     private List<String> image;
+    private List<String> file;
 }

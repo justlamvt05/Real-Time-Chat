@@ -17,5 +17,6 @@ public class MessageResponse {
     private String senderUsername;
     private UUID chatRoomId;
     private List<String> images;
+    private String fileUrl;
 
 }

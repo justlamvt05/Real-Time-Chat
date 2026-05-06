@@ -34,22 +34,39 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     @Override
     public void handleMessage(ChatMessageRequest request, Principal principal) {
+
         String username = principal.getName();
-        log.info("Username: {}", username);
+
         User currentUser = userRepository
                 .findByUsername(username)
                 .orElseThrow(() -> new EntityNotFound("User Not Found"));
-        log.info("Chat id: {}", request.getChatId());
+
         ChatRoom room = chatRoomRepository
                 .findById(request.getChatId())
                 .orElseThrow(() -> new EntityNotFound("Chat Room Not Found"));
+
+        if ((request.getImage() == null || request.getImage().isEmpty())
+                && (request.getContent() == null || request.getContent().isBlank())
+                && (request.getFile() != null && !request.getFile().isEmpty())) {
+
+            for (String fileUrl : request.getFile()) {
+                Message fileMsg = new Message();
+                fileMsg.setChatRoom(room);
+                fileMsg.setSender(currentUser);
+                fileMsg.setFileUrl(fileUrl);
+                fileMsg.setType("FILE");
+
+                Message saved = messageRepository.save(fileMsg);
+                kafkaProducerService.sendMessage(saved);
+            }
+
+            return;
+        }
 
         Message message = new Message();
         message.setContent(request.getContent());
         message.setChatRoom(room);
         message.setSender(currentUser);
-
-
         message.setImages(request.getImage());
 
         message.setType(
@@ -59,9 +76,6 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         );
 
         Message saved = messageRepository.save(message);
-
-
-
         kafkaProducerService.sendMessage(saved);
     }
 

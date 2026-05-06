@@ -55,6 +55,7 @@ public class MessageServiceImpl implements MessageService {
                 .senderUsername(message.getSender().getUsername())
                 .chatRoomId(message.getChatRoom().getId())
                 .images(message.getImages())
+                .fileUrl(message.getFileUrl())
                 .build();
     }
 

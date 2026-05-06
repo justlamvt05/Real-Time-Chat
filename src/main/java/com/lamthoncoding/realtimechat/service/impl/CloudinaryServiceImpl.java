@@ -4,6 +4,7 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.lamthoncoding.realtimechat.entity.User;
 import com.lamthoncoding.realtimechat.exception.handlers.EntityNotFound;
+import com.lamthoncoding.realtimechat.exception.handlers.InvalidInputException;
 import com.lamthoncoding.realtimechat.repository.UserRepository;
 import com.lamthoncoding.realtimechat.service.CloudinaryService;
 import lombok.RequiredArgsConstructor;
@@ -26,101 +27,119 @@ public class CloudinaryServiceImpl implements CloudinaryService {
 
     private final Cloudinary cloudinary;
     private final UserRepository userRepository;
-    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024;
 
-    private static final List<String> ALLOWED_IMAGE_TYPES = List.of(
-            "image/jpeg",
-            "image/png",
-            "image/jpg",
-            "image/heic",
-            "image/heif",
-            "image/webp",
-            "image/gif"
+    private static final List<String> IMAGE_TYPES = List.of(
+            "image/jpeg", "image/png", "image/jpg",
+            "image/heic", "image/heif", "image/webp", "image/gif"
+    );
+
+    private static final List<String> DOCUMENT_TYPES = List.of(
+            "application/pdf",
+            "application/msword",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "application/vnd.ms-excel",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     );
 
     @Override
     public String uploadAvatar(MultipartFile file) {
 
-        if (file == null || file.isEmpty()) {
-            throw new RuntimeException("File is empty");
-        }
+        validateFile(file, IMAGE_TYPES);
 
-        // Check dung lượng
-        if (file.getSize() > MAX_FILE_SIZE) {
-            throw new RuntimeException("File size exceeds 5MB");
-        }
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        // Check định dạng ảnh
-        String contentType = file.getContentType();
-
-        if (contentType == null || !ALLOWED_IMAGE_TYPES.contains(contentType)) {
-            throw new RuntimeException("Unsupported image format");
-        }
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        assert authentication != null;
-
-        String username = authentication.getName();
-        log.info("Username: {}", username);
-
-        User currentUser = userRepository
-                .findByUsername(username)
-                .orElseThrow(() -> new EntityNotFound("User Not Found"));
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFound("User not found"));
 
         try {
+            String url = uploadToCloudinary(file, "avatars", "image");
 
-            Map uploadResult = cloudinary.uploader().upload(
-                    file.getBytes(),
-                    ObjectUtils.asMap(
-                            "folder", "avatars"
-                    )
-            );
+            user.setAvatar(url);
+            userRepository.save(user);
 
-            String imageUrl = uploadResult.get("secure_url").toString();
-
-            currentUser.setAvatar(imageUrl);
-            userRepository.save(currentUser);
-
-            return imageUrl;
+            return url;
 
         } catch (IOException e) {
-            throw new RuntimeException("Upload failed");
+            log.error("Upload avatar failed", e);
+            throw new RuntimeException("Upload avatar failed");
         }
     }
 
     @Override
     public List<String> uploadImage(List<MultipartFile> files) {
-        List<String> urls = new ArrayList<>();
 
-        try {
-            for (MultipartFile file : files) {
+        return files.stream()
+                .filter(file -> !file.isEmpty())
+                .map(file -> {
+                    validateFile(file, IMAGE_TYPES);
+                    try {
+                        return uploadToCloudinary(file, "chat-images", "image");
+                    } catch (IOException e) {
+                        throw new IllegalArgumentException("Upload image failed", e);
+                    }
+                })
+                .toList();
+    }
 
-                if (file.isEmpty()) {
-                    continue;
-                }
+    @Override
+    public List<String> uploadFile(List<MultipartFile> files) {
 
-                // validate ảnh
-                String contentType = file.getContentType();
-                if (contentType == null || !contentType.startsWith("image/")) {
-                    throw new RuntimeException("File not  image");
-                }
+        return files.stream()
+                .filter(file -> !file.isEmpty())
+                .map(file -> {
+                    validateFile(file, DOCUMENT_TYPES);
+                    try {
+                        return uploadToCloudinary(file, "chat-files", "raw");
+                    } catch (IOException e) {
+                        throw new IllegalArgumentException("Upload file failed", e);
+                    }
+                })
+                .toList();
+    }
 
-                Map uploadResult = cloudinary.uploader().upload(
-                        file.getBytes(),
-                        Map.of(
-                                "folder", "chat-images",
-                                "resource_type", "image"
-                        )
-                );
+    private void validateFile(MultipartFile file, List<String> allowedTypes) {
 
-                String url = uploadResult.get("secure_url").toString();
-                urls.add(url);
-            }
-
-        } catch (Exception e) {
-            throw new RuntimeException("Upload failed", e);
+        if (file == null || file.isEmpty()) {
+            throw new InvalidInputException("File is empty");
         }
 
-        return urls;
+        if (file.getSize() > MAX_FILE_SIZE) {
+            throw new InvalidInputException("File exceeds max size 5MB");
+        }
+
+        String contentType = file.getContentType();
+
+        if (contentType == null || !allowedTypes.contains(contentType)) {
+            throw new InvalidInputException("Unsupported file type: " + contentType);
+        }
+    }
+
+    private String uploadToCloudinary(MultipartFile file, String folder, String resourceType) throws IOException {
+
+        String fileName = getFileNameWithExtension(file);
+
+        Map<?, ?> result = cloudinary.uploader().upload(
+                file.getBytes(),
+                Map.of(
+                        "folder", folder,
+                        "resource_type", resourceType,
+                        "type", "upload",
+                        "public_id", fileName,
+                        "unique_filename", true
+                )
+        );
+
+        return result.get("secure_url").toString();
+    }
+
+    private String getFileNameWithExtension(MultipartFile file) {
+        String original = file.getOriginalFilename();
+
+        if (original == null || !original.contains(".")) {
+            throw new InvalidInputException("File must have extension");
+        }
+
+        return original.replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
     }
 }
