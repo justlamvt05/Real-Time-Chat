@@ -1,7 +1,6 @@
 package com.lamthoncoding.realtimechat.service.impl;
 
 import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
 import com.lamthoncoding.realtimechat.entity.User;
 import com.lamthoncoding.realtimechat.exception.handlers.EntityNotFound;
 import com.lamthoncoding.realtimechat.exception.handlers.InvalidInputException;
@@ -9,14 +8,12 @@ import com.lamthoncoding.realtimechat.repository.UserRepository;
 import com.lamthoncoding.realtimechat.service.CloudinaryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.List;
 

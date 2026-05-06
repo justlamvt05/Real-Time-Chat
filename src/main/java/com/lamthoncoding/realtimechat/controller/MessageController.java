@@ -27,4 +27,15 @@ public class MessageController {
         return messageService.getMessages(chatRoomId, page, size);
 
     }
+
+    @PostMapping("/delete")
+    public ApiResponse<String> deleteMessages(@RequestParam UUID messageId ) {
+
+        return messageService.deleteMessage( messageId);
+    }
+
+    @PutMapping("/edit")
+    public ApiResponse<String> editMessages(@RequestParam UUID messageId, @RequestParam String content ) {
+        return messageService.editMessage(messageId, content);
+    }
 }

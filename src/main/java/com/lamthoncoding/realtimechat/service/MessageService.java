@@ -12,4 +12,7 @@ public interface MessageService {
 //    Message sendMessage(String senderUsername, MessageDTO dto);
 ApiResponse<Page<MessageResponse>> getMessages(UUID chatRoomId, int page, int size);
 
+    ApiResponse<String> deleteMessage( UUID messageId);
+
+    ApiResponse<String> editMessage(UUID messageId, String content);
 }
