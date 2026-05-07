@@ -65,4 +65,14 @@ public class ChatRoomUserController {
 
         return ApiResponse.success(fileUrl);
     }
+
+    @GetMapping("/my-chat")
+    public ApiResponse<?> getMyChats(
+            @RequestParam UUID userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+
+        return chatRoomUserService.getMyChats(userId, page, size);
+    }
 }

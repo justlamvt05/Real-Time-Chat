@@ -4,12 +4,16 @@ import com.lamthoncoding.realtimechat.entity.ChatRoom;
 import com.lamthoncoding.realtimechat.entity.ChatRoomUser;
 import com.lamthoncoding.realtimechat.entity.User;
 import com.lamthoncoding.realtimechat.payload.response.ApiResponse;
+import com.lamthoncoding.realtimechat.payload.response.ChatRoomResponse;
 import com.lamthoncoding.realtimechat.repository.ChatRoomRepository;
 import com.lamthoncoding.realtimechat.repository.ChatRoomUserRepository;
 import com.lamthoncoding.realtimechat.repository.UserRepository;
 import com.lamthoncoding.realtimechat.service.ChatRoomUserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -53,4 +57,17 @@ public class ChatRoomUserServiceImpl implements ChatRoomUserService {
 
         return ApiResponse.success(room.getId()) ;
     }
+
+    @Override
+    public ApiResponse<?> getMyChats(UUID userId, int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<ChatRoomResponse> chats =
+                chatRoomUserRepository.getUserChats(userId, pageable);
+
+        return ApiResponse.success(chats);
+    }
+
+
 }
