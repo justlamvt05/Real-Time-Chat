@@ -1,5 +1,6 @@
 package com.lamthoncoding.realtimechat.entity;
 
+import com.lamthoncoding.realtimechat.constraint.RoomRole;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,5 +26,20 @@ public class ChatRoomUser {
     private User user;
 
     private Instant joinedAt;
+
+    private Instant leftAt;
+
+    private Boolean deleted = false;
+
+    private UUID lastReadMessageId;
+
+    private Instant lastReadAt;
+
+    private Boolean muted = false;
+
+    private Boolean pinned = false;
+
+    @Enumerated(EnumType.STRING)
+    private RoomRole role;
 }
 

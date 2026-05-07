@@ -21,4 +21,12 @@ public class ChatRoom extends BaseEntity {
 
     private Boolean isGroup;
 
+    private String avatar;
+
+
+    @ManyToOne
+    private User createdBy;
+
+    @OneToOne
+    private Message lastMessage;
 }

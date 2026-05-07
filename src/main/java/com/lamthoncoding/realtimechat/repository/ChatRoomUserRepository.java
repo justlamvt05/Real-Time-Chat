@@ -53,4 +53,10 @@ public interface ChatRoomUserRepository extends JpaRepository<ChatRoomUser, UUID
     """)
     Page<ChatRoomResponse> getUserChats(UUID userId, Pageable pageable);
 
+    @Query("""
+    SELECT cru.user.id
+    FROM ChatRoomUser cru
+    WHERE cru.chatRoom.id = :roomId
+""")
+    List<UUID> findUserIdsByRoomId(UUID roomId);
 }
